@@ -1,2 +1,2 @@
-# easycurl
-A simple HTTP library for PHP
+# phpcurl
+A simple PHP curl library
