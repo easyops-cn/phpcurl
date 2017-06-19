@@ -33,11 +33,15 @@ namespace easyops\curl;
  */
 class EasyRequest
 {
+    const HTTP_GET = 'GET';
+    const HTTP_POST = 'POST';
+    const HTTP_PUT = 'PUT';
+    const HTTP_DELETE = 'DELETE';
+
     const CONTENT_TYPE_CUSTOMIZE = 0;
     const CONTENT_TYPE_FORM = 1;
     const CONTENT_TYPE_URLENCODED = 2;
-    const CONTENT_TYPE_RAW = 3;
-    const CONTENT_TYPE_JSON = 4;
+    const CONTENT_TYPE_JSON = 3;
 
     /** @var string $method */
     protected $method = 'GET';
@@ -51,7 +55,7 @@ class EasyRequest
     /** @var mixed $data */
     protected $data = null;
 
-    /** @var null $contentType */
+    /** @var int $contentType */
     protected $contentType = self::CONTENT_TYPE_CUSTOMIZE;
 
     protected $url = "";
@@ -68,28 +72,25 @@ class EasyRequest
     /**
      * @param string $key
      * @param string $value
-     * @param bool $keepCase
      * @return $this
      */
-    public function setHeader($key, $value, $keepCase = true)
+    public function setHeader($key, $value)
     {
         $key = trim($key);
         $value = trim($value);
-        !$keepCase && $key = strtolower($key);
-        $this->headers[strtoupper($key)] = "$key: $value";
+        $this->headers[strtolower($key)] = $value;
         return $this;
     }
 
     /**
      * @param array $headers
-     * @param bool $keepCase
      * @return $this
      */
-    public function setHeaders(array $headers, $keepCase = true)
+    public function setHeaders(array $headers)
     {
         $this->headers = [];
         foreach ($headers as $key => $value) {
-            $this->setHeader($key, $value, $keepCase);
+            $this->setHeader($key, $value);
         }
         return $this;
     }
@@ -99,10 +100,15 @@ class EasyRequest
      */
     public function getHeaders()
     {
-        $headers = [];
-        foreach ($this->headers as $key => $item) {
-            $key = substr($item, 0, strlen($key));
-            $headers[$key] = substr($item, strlen($key)+2-strlen($item));
+        $headers = $this->headers;
+        if ($this->contentType == self::CONTENT_TYPE_FORM) {
+            unset($headers['content-type']);
+        }
+        elseif ($this->contentType == self::CONTENT_TYPE_URLENCODED) {
+            $headers['content-type'] = 'application/x-www-form-urlencoded';
+        }
+        elseif ($this->contentType == self::CONTENT_TYPE_JSON) {
+            $headers['content-type'] = 'application/json';
         }
         return $headers;
     }
@@ -154,6 +160,7 @@ class EasyRequest
     public function setData($data)
     {
         $this->data = $data;
+        $this->contentType = self::CONTENT_TYPE_CUSTOMIZE;
         return $this;
     }
 
@@ -205,14 +212,6 @@ class EasyRequest
      */
     public function getURL()
     {
-        return $this->url;
-    }
-
-    /**
-     * @return string
-     */
-    public function buildUrl()
-    {
         $url = parse_url($this->url);
         $scheme   = isset($url['scheme']) ? $url['scheme'] . '://' : '';
         $host     = isset($url['host']) ? $url['host'] : '';
@@ -221,10 +220,10 @@ class EasyRequest
         $pass     = isset($url['pass']) ? ':' . $url['pass']  : '';
         $pass     = ($user || $pass) ? "$pass@" : '';
         $path     = isset($url['path']) ? $url['path'] : '';
-        $query    = isset($url['query']) ? '?' . $url['query'] : '';
         $fragment = isset($url['fragment']) ? '#' . $url['fragment'] : '';
-        $queryStr = http_build_query($this->query);
-        !empty($queryStr) && $query = '?' . $queryStr;
+        parse_str(isset($url['query']) ? $url['query'] : '', $query);
+        $query = array_merge($query, $this->query);
+        $query = empty($query) ? '' : '?'.http_build_query($query);
         return "$scheme$user$pass$host$port$path$query$fragment";
     }
 
