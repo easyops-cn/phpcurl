@@ -66,7 +66,6 @@ class EasyCurl
      */
     private static function parseResponse($ch, $response)
     {
-        $info = curl_getinfo($ch);
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $httpCode = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
         $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);

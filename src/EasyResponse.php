@@ -94,7 +94,7 @@ class EasyResponse
     {
         if ($toArray) {
             if (strpos($this->contentType, 'application/json') === 0) {
-                return json_decode($this->body);
+                return json_decode($this->body, true);
             }
         }
         return $this->body;

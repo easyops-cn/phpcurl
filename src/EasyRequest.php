@@ -174,6 +174,7 @@ class EasyRequest
     public function attachFile($key, $filename, $mime = 'application/octet-stream', $postname = null)
     {
         $filename = realpath($filename);
+        // TODO: 处理filename不存在的情况
         is_null($postname) && $postname = basename($filename);
         !is_array($this->data) && $this->data = [];
         $this->data[$key] = new \CURLFile($filename, $mime, $postname);
