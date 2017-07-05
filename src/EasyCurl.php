@@ -66,9 +66,8 @@ class EasyCurl
      */
     private static function parseResponse($ch, $response)
     {
+        $info = curl_getinfo($ch);
         $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $httpCode = intval(curl_getinfo($ch, CURLINFO_HTTP_CODE));
-        $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 
         $headerString = trim(substr($response, 0, $headerSize));
         $headers = explode("\r\n", trim($headerString));
@@ -82,7 +81,7 @@ class EasyCurl
         }
         $body = substr($response, $headerSize);
 
-        return new EasyResponse($httpCode, $message, $header, $contentType, $body);
+        return new EasyResponse($message, $header, $body, $info);
     }
 
     /**

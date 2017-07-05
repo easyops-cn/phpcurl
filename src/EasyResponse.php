@@ -47,20 +47,23 @@ class EasyResponse
     /** @var string $body */
     protected $body;
 
+    /** @var array $info */
+    protected $info;
+
     /**
      * EasyResponse constructor.
-     * @param int $code
      * @param string $message
      * @param array $headers
-     * @param string $contentType
      * @param string $body
+     * @param array $info
      */
-    public function __construct($code, $message, $headers, $contentType, $body)
+    public function __construct($message, array $headers, $body, array $info = [])
     {
-        $this->code = $code;
+        $this->code = $info['http_code'];
         $this->message = $message;
         $this->headers = $headers;
-        $this->contentType = $contentType;
+        $this->contentType = $info['content_type'];
+        $this->info = $info;
         $this->body = $body;
     }
 
@@ -98,5 +101,13 @@ class EasyResponse
             }
         }
         return $this->body;
+    }
+
+    /**
+     * @return array
+     */
+    public function getInfo()
+    {
+        return $this->info;
     }
 }
