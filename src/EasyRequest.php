@@ -137,7 +137,7 @@ class EasyRequest
      */
     public function setJson(array $data)
     {
-        $this->data = json_encode($data, JSON_FORCE_OBJECT);
+        $this->data = json_encode($data);
         $this->contentType = self::CONTENT_TYPE_JSON;
         return $this;
     }
